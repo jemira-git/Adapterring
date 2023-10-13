@@ -51,7 +51,48 @@ module k3() {
     }
 }
 
+// Gewinde -- gw
+gw_d_aussen  = k1_d_innen + 2*delta;
+gw_d_innen   = 114.00; // Innendurchmesser
+gw_h         =   1.60; // Höhe
+gw_winkel    = 110;
+gw__size     =  10.00; // Plättchen zum Abschrägen
 
+// Plaettchen zum Abschrägen der Gewindeenden
+module plaettchen() {
+    rotate([0, 0, 45])
+        translate([-gw__size/2, -gw__size/2, -delta])
+            cube([gw__size, gw__size, gw_h + 2*delta]);
+}
+
+module _gw() {
+    rotate([5, 0, -gw_winkel/2]) {
+        difference() {
+            linear_extrude(height = gw_h) {
+                2dWedge(gw_d_aussen / 2.0, 0,
+                        gw_winkel);
+            }
+            {
+                translate([0, 0, -delta])
+                    cylinder(h = gw_h + 2*delta,
+                             d = gw_d_innen);
+                translate([gw_d_innen / 2.0 * 0.95, 
+                            0, 0])
+                    plaettchen();
+                rotate([0, 0, gw_winkel])
+                    translate([gw_d_innen / 
+                                2.0 * 0.95, 0, 0])
+                        plaettchen();
+                }
+        }
+    }
+}
+
+module gw() {
+    _gw();
+    rotate([0, 0, 180])
+        _gw();
+}
 
 module k() {
     k1();
@@ -59,9 +100,12 @@ module k() {
         k2();
     translate([0, 0, k1_h - delta])
         k3();
+    gw();
 }
 
 //k1();
 //k2();
 //k3();
-//k();
+//_gw();
+//gw();
+k();
