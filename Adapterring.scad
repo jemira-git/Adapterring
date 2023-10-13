@@ -141,12 +141,14 @@ gp1_d           = k3_d_aussen + 2*delta;
 gp2_winkel      = 32; // Grad
 gp2_h           = k3_h + delta;
 gp2_d           = k3_d_aussen + 2*delta;
+gp_korr         = 12; // Grad Winkel Korrektur
 
 module _gp() {
-    linear_extrude(height = gp1_h) {
-        2dWedge(gp1_d / 2.0, 0, gp1_winkel);
-    }
-    rotate([0, 0, gp1_winkel -gp2_winkel])
+    rotate([0, 0, -gp_korr])
+        linear_extrude(height = gp1_h) {
+            2dWedge(gp1_d / 2.0, 0, gp1_winkel);
+        }
+    rotate([0, 0, gp1_winkel -gp2_winkel -gp_korr])
         linear_extrude(height = gp2_h + delta) {
             2dWedge(gp2_d / 2.0, 0, gp2_winkel);
         }
@@ -160,6 +162,41 @@ module gp() {
         _gp();
 }
 
+module _k3_clip() {
+    translate([k3_d_aussen/2 - cl_scale, 0, 0])
+        rotate([0, 0, 90])
+            clip();
+}
+
+module _k3_cut1() {
+    difference() {
+        cylinder(h = k3_h, d = k1_d_aussen);
+        translate([0, 0, -delta])
+            cylinder(h = k3_h + 2*delta, 
+                     d = k3_d_aussen);
+    }
+}
+
+module _k3_cut2() {
+    cl_extra = 6.0;
+    translate([0, 0, -delta])
+        cylinder(h = k3_h + 2*delta, 
+                 d = k3_d_innen - cl_extra);
+}
+
+module _k3_cuts() {
+    _k3_cut1();
+    _k3_cut2();
+}
+
+module _k3_clips() {
+    _k3_clip();
+    rotate([0, 0, 120])
+        _k3_clip();
+    rotate([0, 0, 240])
+        _k3_clip();
+}
+
 module k3() {
     difference() {
         cylinder(h = k3_h + delta, d = k3_d_aussen);
@@ -169,6 +206,10 @@ module k3() {
                          d = k3_d_innen);
             gp();
         }
+    }
+    difference() {
+        _k3_clips();
+        _k3_cuts();
     }
 }
 
@@ -189,4 +230,5 @@ module k() {
 //gw();
 //gp();
 //clip();
+//_k3_cut1();
 k();
