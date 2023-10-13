@@ -102,24 +102,43 @@ module gw() {
 
 // Clips -- cl
 // Alle Werte normiert auf 1.0:
-cl_sin_amplitude = 0.15; // Stärke des Sinus
-cl_thickness     = 0.03; // Dicke des Sinus
-cl_left          = 1.50; // Platz nach links
+cl_sin_amplitude = 0.110; // Stärke des Sinus
+cl_thickness     = 0.200; // Dicke des Sinus
+cl_left          = 1.250; // Platz nach links
+cl_bottom        = 0.235; // Platz nach unten
+cl_d_knubbel     = 0.175; // Durchmesser des Knubbels
+cl_x_knubbel     = 0.500; // Knubbel X Koordinate
+cl_y_knubbel     = 0.250; // Knubbel Y Koordinate
+// Skalierung auf echten Wert
+cl_scale         = 10.00;
 
-module sinus_material() {
-    points1 = [
+module sinus_material_2d() {
+    points = [
         for (i = [0:5:360])
             [ i / 360, 
-             sin(i) * cl_sin_amplitude + cl_thickness ],
-        [1.0 + cl_thickness, cl_thickness],
-        [1.0 + cl_thickness, 0],
+             sin(i) * cl_sin_amplitude + cl_thickness
+               + cl_bottom ],
+        [1.0 + cl_thickness * 1.1, 
+            cl_thickness + cl_bottom],
         for (i = [360:-5:0])
             [ i / 360, 
-             sin(i) * cl_sin_amplitude],
-        [-cl_left, 0]
-        
+             sin(i) * cl_sin_amplitude + cl_bottom],
+        [-cl_left, cl_bottom],
+        [-cl_left, 0],
+        [-cl_left-cl_thickness, 0],
+        [-cl_left-cl_thickness, cl_thickness 
+         + cl_bottom]        
     ];
-    polygon(points1);    
+    polygon(points);
+        translate([cl_x_knubbel, cl_y_knubbel])
+    circle(d=cl_d_knubbel, $fn=25);
+}
+
+module clip() {
+    scale([cl_scale, cl_scale, cl_scale])
+        rotate([90, 0, 0])
+            linear_extrude(height=1)
+                sinus_material_2d();
 }
 
 module k() {
@@ -136,5 +155,5 @@ module k() {
 //k3();
 //_gw();
 //gw();
-//sinus_material();
-k();
+clip();
+//k();
