@@ -1,9 +1,10 @@
 // Adapterring
-use <2dWedge.scad>
 
 // Resolution for 3D printing:
 $fa = 1;
 $fs = 0.4;
+
+use <./2dWedge.scad>
 
 // Allgemeines:
 delta = 0.10; // Standard Durchdringung
@@ -55,8 +56,11 @@ module k3() {
 gw_d_aussen  = k1_d_innen + 2*delta;
 gw_d_innen   = 114.00; // Innendurchmesser
 gw_h         =   1.60; // Höhe
-gw_winkel    = 110;
+gw_winkel    = 110;    // Grad Gewindesegmente
 gw__size     =  10.00; // Plättchen zum Abschrägen
+gw_kipp      =   2;    // Grad Kippwikel
+gw_offset1   =   6.70; // Offset des Gewindesegments 1
+gw_offset2   =   7.60; // Offset des Gewindesegments 2
 
 // Plaettchen zum Abschrägen der Gewindeenden
 module plaettchen() {
@@ -66,7 +70,7 @@ module plaettchen() {
 }
 
 module _gw() {
-    rotate([5, 0, -gw_winkel/2]) {
+    rotate([gw_kipp, 0, -gw_winkel/2]) {
         difference() {
             linear_extrude(height = gw_h) {
                 2dWedge(gw_d_aussen / 2.0, 0,
@@ -89,9 +93,33 @@ module _gw() {
 }
 
 module gw() {
-    _gw();
-    rotate([0, 0, 180])
+    translate([0, 0, gw_offset1])
         _gw();
+    translate([0, 0, gw_offset2])
+        rotate([0, 0, 180])
+            _gw();
+}
+
+// Clips -- cl
+// Alle Werte normiert auf 1.0:
+cl_sin_amplitude = 0.15; // Stärke des Sinus
+cl_thickness     = 0.03; // Dicke des Sinus
+cl_left          = 1.50; // Platz nach links
+
+module sinus_material() {
+    points1 = [
+        for (i = [0:5:360])
+            [ i / 360, 
+             sin(i) * cl_sin_amplitude + cl_thickness ],
+        [1.0 + cl_thickness, cl_thickness],
+        [1.0 + cl_thickness, 0],
+        for (i = [360:-5:0])
+            [ i / 360, 
+             sin(i) * cl_sin_amplitude],
+        [-cl_left, 0]
+        
+    ];
+    polygon(points1);    
 }
 
 module k() {
@@ -108,4 +136,5 @@ module k() {
 //k3();
 //_gw();
 //gw();
+//sinus_material();
 k();
