@@ -43,14 +43,7 @@ k3_wanddicke =   3.50; // Wanddicke
 k3_d_innen   = k3_d_aussen - 2 * k3_wanddicke;
 k3_h         =   7.00; // Höhe
 
-module k3() {
-    difference() {
-        cylinder(h = k3_h + delta, d = k3_d_aussen);
-        translate([0, 0, -delta])
-            cylinder(h = k3_h + 3*delta,
-                     d = k3_d_innen);
-    }
-}
+// Forward k3
 
 // Gewinde -- gw
 gw_d_aussen  = k1_d_innen + 2*delta;
@@ -141,6 +134,45 @@ module clip() {
                 sinus_material_2d();
 }
 
+// Gap -- gp1 -- Ausschnitt in k3
+gp1_winkel      = 40; // Grad
+gp1_h           = cl_bottom * cl_scale; // Höhe
+gp1_d           = k3_d_aussen + 2*delta;
+gp2_winkel      = 32; // Grad
+gp2_h           = k3_h + delta;
+gp2_d           = k3_d_aussen + 2*delta;
+
+module _gp() {
+    linear_extrude(height = gp1_h) {
+        2dWedge(gp1_d / 2.0, 0, gp1_winkel);
+    }
+    rotate([0, 0, gp1_winkel -gp2_winkel])
+        linear_extrude(height = gp2_h + delta) {
+            2dWedge(gp2_d / 2.0, 0, gp2_winkel);
+        }
+}
+
+module gp() {
+    _gp();
+    rotate([0, 0, 120])
+        _gp();
+    rotate([0, 0, 240])
+        _gp();
+}
+
+module k3() {
+    difference() {
+        cylinder(h = k3_h + delta, d = k3_d_aussen);
+        {
+            translate([0, 0, -delta])
+                cylinder(h = k3_h + 3*delta,
+                         d = k3_d_innen);
+            gp();
+        }
+    }
+}
+
+// Fertiger Körper -- k
 module k() {
     k1();
     translate([0, 0, k1_h - k2_h])
@@ -155,5 +187,6 @@ module k() {
 //k3();
 //_gw();
 //gw();
-clip();
-//k();
+//gp();
+//clip();
+k();
