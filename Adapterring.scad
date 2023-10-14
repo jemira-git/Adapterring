@@ -166,10 +166,10 @@ module clip() {
 }
 
 // Gap -- gp1 -- Ausschnitt in k3
-gp1_winkel      = 40; // Grad
+gp1_winkel      = 43; // Grad
 gp1_h           = cl_bottom * cl_scale; // Höhe
 gp1_d           = k3_d_aussen + 2*delta;
-gp2_winkel      = 32; // Grad
+gp2_winkel      = 37; // Grad
 gp2_h           = k3_h + delta;
 gp2_d           = k3_d_aussen + 2*delta;
 gp_korr         = 12; // Grad Winkel Korrektur
