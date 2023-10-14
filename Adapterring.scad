@@ -24,7 +24,7 @@ module _tasche() {
                 0, grad);
     }
     translate([0, 0, ta_z_loch])
-        rotate([90, 0, 90 + grad / 2])
+        rotate([0, 90, grad / 2])
             cylinder(h = k1_d_aussen / 2 + delta,
                      d = ta_d_loch);
 }
