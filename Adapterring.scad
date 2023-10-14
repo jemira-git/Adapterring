@@ -13,6 +13,8 @@ delta = 0.10; // Standard Durchdringung
 ta_breite   = 17.00;
 ta_hoehe    =  7.00;
 ta_tiefe    =  1.50;
+ta_d_loch   =  2.00;
+ta_z_loch   =  1.00;
 
 module _tasche() {
     umfang = k1_d_innen * PI;
@@ -21,6 +23,10 @@ module _tasche() {
         2dWedge(k1_d_innen / 2.0 + ta_tiefe,
                 0, grad);
     }
+    translate([0, 0, ta_z_loch])
+        rotate([90, 0, 90 + grad / 2])
+            cylinder(h = k1_d_aussen / 2 + delta,
+                     d = ta_d_loch);
 }
 
 // Brauche Gewinde Offsets schon hier
@@ -255,4 +261,3 @@ module k() {
 }
 
 k();
-//taschen();
