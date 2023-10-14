@@ -9,6 +9,37 @@ use <./2dWedge.scad>
 // Allgemeines:
 delta = 0.10; // Standard Durchdringung
 
+// Taschen -- ta -- Taschen zum Einrasten
+ta_breite   = 17.00;
+ta_hoehe    =  7.00;
+ta_tiefe    =  1.50;
+
+module _tasche() {
+    umfang = k1_d_innen * PI;
+    grad = (ta_breite / umfang) * 360;
+    linear_extrude(height = ta_hoehe) {
+        2dWedge(k1_d_innen / 2.0 + ta_tiefe,
+                0, grad);
+    }
+}
+
+// Brauche Gewinde Offsets schon hier
+gw_offset1   =  14.60; // Von Unterkante von k1
+gw_offset2   =  15.70; // Von Unterkante von k1
+gw_h         =   1.60; // Höhe
+
+module taschen() {
+    translate([0, 0, gw_offset1 - ta_hoehe + gw_h]) {
+        _tasche();
+        rotate([0, 0, 90])
+            _tasche();
+        rotate([0, 0, 180])
+            _tasche();
+        rotate([0, 0, 270])
+            _tasche();
+    }
+}
+
 // Körper 1 -- k1 -- Unterer Ring
 k1_d_innen   = 124.50; // Innendurchmesser
 k1_wanddicke =   4.25; // Wanddicke
@@ -18,9 +49,12 @@ k1_h         =  25.00; // Höhe
 module k1() {
     difference() {
         cylinder(h = k1_h, d = k1_d_aussen);
-        translate([0, 0, -delta])
-            cylinder(h = k1_h + 2*delta,
-                     d = k1_d_innen);
+        {
+            translate([0, 0, -delta])
+                cylinder(h = k1_h + 2*delta,
+                         d = k1_d_innen);
+            taschen();
+        }
     }
 }
 
@@ -48,12 +82,9 @@ k3_h         =   7.00; // Höhe
 // Gewinde -- gw
 gw_d_aussen  = k1_d_innen + 2*delta;
 gw_d_innen   = 114.00; // Innendurchmesser
-gw_h         =   1.60; // Höhe
 gw_winkel    = 110;    // Grad Gewindesegmente
 gw__size     =  10.00; // Plättchen zum Abschrägen
 gw_kipp      =   2;    // Grad Kippwikel
-gw_offset1   =   6.70; // Offset des Gewindesegments 1
-gw_offset2   =   7.60; // Offset des Gewindesegments 2
 
 // Plaettchen zum Abschrägen der Gewindeenden
 module plaettchen() {
@@ -223,12 +254,5 @@ module k() {
     gw();
 }
 
-//k1();
-//k2();
-//k3();
-//_gw();
-//gw();
-//gp();
-//clip();
-//_k3_cut1();
 k();
+//taschen();
